@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 270 50% 97%;
+    --foreground: 270 40% 30%;
+
+    --card: 270 40% 95%;
+    --card-foreground: 270 40% 30%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 40% 30%;
+
+    --primary: 270 60% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 330 70% 70%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 270 30% 92%;
+    --muted-foreground: 270 20% 50%;
+
+    --accent: 330 80% 75%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 270 30% 88%;
+    --input: 270 30% 90%;
+    --ring: 270 60% 65%;
+
+    --radius: 1rem;
+
+    --wheel-1: 45 90% 65%;
+    --wheel-2: 210 70% 65%;
+    --wheel-3: 330 70% 70%;
+    --wheel-4: 170 60% 65%;
+    --wheel-5: 280 50% 65%;
+    --wheel-6: 20 80% 65%;
+
+    --gradient-bg: linear-gradient(
+      180deg,
+      hsl(270 60% 95%),
+      hsl(330 50% 95%),
+      hsl(270 50% 97%)
+    );
+    --gradient-spin: linear-gradient(
+      135deg,
+      hsl(330 80% 65%),
+      hsl(270 60% 65%)
+    );
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Fredoka", sans-serif;
+    background: var(--gradient-bg);
+    min-height: 100vh;
+  }
+}
+
+@keyframes spin-wheel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(var(--spin-to));
+  }
+}
