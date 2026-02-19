@@ -377,7 +377,7 @@ export default function App() {
                   lineHeight: 1.6,
                 }}
               >
-                Enter both names to begin. Each person will answer all 10 questions privately — then we'll reveal how compatible you really are.
+                Enter both names to begin. Each person will answer all 10 questions privately. Then we'll reveal how compatible you really are.
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
