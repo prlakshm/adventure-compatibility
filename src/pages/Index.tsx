@@ -3,138 +3,200 @@ import { useState, useRef, useEffect } from "react";
 const questions = [
   {
     id: 1,
-    question: "How do you feel about planning a spontaneous weekend getaway?",
+    question: "If you had to fight a dragon, what would you use?",
     answers: [
-      "Love it! The thrill of the unknown excites me",
-      "I prefer planning everything in advance",
-      "I might consider it if there's some structure",
+      "A dragon costume to disguise myself as a dragon",
+      "A sword to cut off its head",
+      "A flamethrower to fight fire with fire",
     ],
   },
   {
     id: 2,
-    question: "When choosing a vacation, what appeals to you most?",
+    question: "Do you think Helen Keller was faking it?",
     answers: [
-      "Backpacking through unknown places",
-      "A relaxing resort stay",
-      "A mix of adventure and comfort",
+      "Yes",
+      "No",
+      "Wtf is wrong with you, she's a national treasure",
     ],
   },
   {
     id: 3,
-    question: "Your partner suggests skydiving on your anniversary. What's your response?",
+    question: "If aliens came down to earth, would they be more interested in abducting me or you?",
     answers: [
-      "Absolutely! Let's do it!",
-      "No way! That's too extreme for me",
-      "I'd consider it after some research",
+      "Me",
+      "You",
+      "Neither, they would give up on the human population after meeting us",
     ],
   },
   {
     id: 4,
-    question: "How do you handle getting lost while traveling?",
+    question: "What is the superior flavor of breakfast food?",
     answers: [
-      "I see it as part of the adventure!",
-      "I get stressed and frustrated",
-      "I try to stay calm and find a solution",
+      "Sweet",
+      "Savory",
+      "Whatever I feel like",
     ],
   },
   {
     id: 5,
-    question: "If you had a free day with no plans, what would you do?",
+    question: "Choose an emoji.",
     answers: [
-      "Go on a spontaneous road trip or outdoor activity",
-      "Stay home and relax",
-      "Maybe explore a new café or museum",
+      "🫥",
+      "💖",
+      "🎉",
     ],
   },
   {
     id: 6,
-    question: "What's your ideal way to spend time together?",
+    question: "If you could only feel one emotion for the rest of your life, what would it be?",
     answers: [
-      "Hiking, camping, or trying something new",
-      "Watching movies or having a quiet dinner",
-      "A mix of active and relaxing activities",
+      "Happy",
+      "Sad",
+      "This just got dark",
     ],
   },
   {
     id: 7,
-    question: "How do you feel about trying exotic foods while traveling?",
+    question: "I would rather collect...",
     answers: [
-      "I'm always up for trying anything new!",
-      "I prefer sticking to familiar foods",
-      "I'll try it if it's not too extreme",
+      "Stickers",
+      "Nutcrackers",
+      "Statues of naked people",
     ],
   },
   {
     id: 8,
-    question: "You and your partner have a free weekend. How do you decide what to do?",
+    question: "Do you believe in ghosts?",
     answers: [
-      "We pick something exciting last-minute",
-      "We plan a laid-back stay-at-home weekend",
-      "We discuss and find a compromise",
+      "Yes",
+      "No",
+      "Only after I watch a scary movie",
     ],
   },
   {
     id: 9,
-    question: "Your partner surprises you with an outdoor survival camping trip. What's your reaction?",
+    question: "If I could fornicate with a country, it would be...",
     answers: [
-      "Amazing! I've always wanted to try this!",
-      "No thanks, I'd rather be somewhere comfortable",
-      "I'd go but would prefer some modern amenities",
+      "California",
+      "Italy",
+      "Paris",
+    ],
+  },
+    {
+    id: 10,
+    question: "I would rather be engaged to (only to later break it off with)...",
+    answers: [
+      "Santa Claus",
+      "the Tooth Fairy",
+      "Sandman",
+    ],
+  },
+    {
+    id: 11,
+    question: "Fuck, marry, kill — Jacob Elordi, Hudson Williams, or Benson Boone?",
+    answers: [
+      "Fuck Jacob Elordi, marry Hudson Williams, kill Benson Boone",
+      "Fuck Hudson Williams, marry Jacob Elordi, kill Benson Boone",
+      "Fuck Hudson Williams, marry Benson Boone, kill Jacob Elordi"
     ],
   },
   {
-    id: 10,
-    question: "How do you feel about high-energy activities like zip-lining or scuba diving?",
+    id: 12,
+    question: "Favorite New York Times game?",
     answers: [
-      "I thrive on them and would do them often!",
-      "I'd rather pass on anything too intense",
-      "I'd try it once, but it's not my go-to",
+      "Wordle",
+      "Crossword",
+      "Connections",
     ],
   },
+];
+
+const questionScoring = [
+  // Q1: Dragon — costume(0), sword(1), flamethrower(2)
+  // costume+flamethrower: both unconventional → 1 | sword+flamethrower: both aggressive → 1 | costume+sword: different → 0
+  [[2, 0, 1], [0, 2, 1], [1, 1, 2]],
+
+  // Q2: Helen Keller — Yes(0), No(1), Wtf(2)
+  // No+Wtf: both respectful, diff intensity → 1 | Yes vs anything → 0
+  [[2, 0, 0], [0, 2, 1], [0, 1, 2]],
+
+  // Q3: Aliens — Me(0), You(1), Neither(2)
+  // Me(p1)+You(p2): they agree it's p1 → 2 | You(p1)+Me(p2): they agree it's p1 → 2 | Me+Me: both think they're more interesting → 1
+  [[1, 2, 0], [2, 1, 0], [0, 0, 2]],
+
+  // Q4: Breakfast — Sweet(0), Savory(1), Whatever(2)
+  // Sweet vs Savory: opposite → 0 | Whatever is flexible → 1 from both
+  [[2, 0, 1], [0, 2, 1], [1, 1, 2]],
+
+  // Q5: Emoji — 🫥(0), 💖(1), 🎉(2)
+  // 💖+🎉: both expressive/positive → 1 | 🫥 vs either: completely different energy → 0
+  [[2, 0, 0], [0, 2, 1], [0, 1, 2]],
+
+  // Q6: Emotion — Happy(0), Sad(1), Dark(2)
+  // Happy vs Sad: opposite → 0 | Sad+Dark: both going somewhere heavy → 1 | Happy+Dark: different → 0
+  [[2, 0, 0], [0, 2, 1], [0, 1, 2]],
+
+  // Q7: Collect — Stickers(0), Nutcrackers(1), Naked statues(2)
+  // Stickers+Nutcrackers: both sorta normal → 1 | Nutcrackers+Naked: both chaotic → 1 | Stickers+Naked: different → 0
+  [[2, 1, 0], [1, 2, 1], [0, 1, 2]],
+
+  // Q8: Ghosts — Yes(0), No(1), Only after scary movie(2)
+  // Yes+ScaryMovie: both kinda believe → 1 | No+ScaryMovie: both skeptical day-to-day → 1 | Yes+No: opposite → 0
+  [[2, 0, 1], [0, 2, 1], [1, 1, 2]],
+
+  // Q9: Country — California(0), Italy(1), Paris(2)
+  // Italy+Paris: both European → 1 | California vs either: different vibe → 0
+  [[2, 0, 0], [0, 2, 1], [0, 1, 2]],
+
+  // Q10: Engaged to — Santa(0), Tooth Fairy(1), Sandman(2)
+  // Santa+Tooth Fairy: both gift-givers → 1 | Tooth Fairy+Sandman: both nocturnal visitors → 1 | Santa+Sandman: different → 0
+  [[2, 1, 0], [1, 2, 1], [0, 1, 2]],
+
+  // Q11: FMK — option0(0), option1(1), option2(2)
+  // 0+1: both kill Benson → 1 | 1+2: both fuck Hudson → 1 | 0+2: nothing in common → 0
+  [[2, 1, 0], [1, 2, 1], [0, 1, 2]],
+
+  // Q12: NYT — Wordle(0), Crossword(1), Connections(2)
+  // All word games, mild differences → any mismatch is 1pt
+  [[2, 1, 1], [1, 2, 1], [1, 1, 2]],
 ];
 
 const SCORE_LABELS = ["A", "B", "C"];
 
 function computeCompatibility(p1, p2) {
-  // A=0 (one extreme), B=2 (other extreme), C=1 (middle)
-  const remap = [0, 2, 1];
-  
   let totalScore = 0;
   for (let i = 0; i < questions.length; i++) {
-    const diff = Math.abs(remap[p1[i]] - remap[p2[i]]);
-    if (diff === 0) totalScore += 2;
-    else if (diff === 1) totalScore += 1;
-    else totalScore += 0;
+    totalScore += questionScoring[i][p1[i]][p2[i]];
   }
-  const maxScore = questions.length * 2;
+  const maxScore = questions.length * 2; // 24
   return Math.round((totalScore / maxScore) * 100);
 }
 
 function getResultMessage(pct) {
   if (pct >= 85)
     return {
-      title: "Adventure Soulmates",
-      desc: "You're practically the same person when it comes to adventure. Every trip, every leap, every wild idea, you'll share it together.",
+      title: "Chaotic Soulmates",
+      desc: "You two are a match made in heaven, operating on the exact same unhinged frequency. Never change.",
       emoji: "🔥",
       color: "#c0392b",
     };
   if (pct >= 65)
     return {
-      title: "Great Match",
-      desc: "You complement each other beautifully. Your differences in adventure style will push you both to try new things.",
+      title: "Beautifully Weird Together",
+      desc: "You don't agree on everything. One of you probably eats breakfast and the other one doesn't, but your brains work in surprisingly similar ways. The aliens would definitely take you both.",
       emoji: "✨",
       color: "#8e44ad",
     };
   if (pct >= 45)
     return {
-      title: "Balanced Pair",
-      desc: "You have different adventure styles, but that's what makes you interesting together. Compromise will be your superpower.",
+      title: "Opposites With Chemistry",
+      desc: "You'll butt heads, but you'll also balance each other out in the best way possible. Different isn't bad, it just means the conversations will never be boring.",
       emoji: "⚖️",
       color: "#2980b9",
     };
   return {
-    title: "Opposites Attract",
-    desc: "You see adventure very differently, but love has always thrived between contrasts. Your journeys together will be surprising.",
+    title: "A True Mystery",
+    desc: "You are two completely different people. The aliens would study you separately. And yet, here we are. The universe definately has a sense of humor.",
     emoji: "🌊",
     color: "#27ae60",
   };
@@ -236,8 +298,8 @@ export default function App() {
   const [person2Name, setPerson2Name] = useState("");
   const [nameInput1, setNameInput1] = useState("");
   const [nameInput2, setNameInput2] = useState("");
-  const [answers1, setAnswers1] = useState(Array(10).fill(null));
-  const [answers2, setAnswers2] = useState(Array(10).fill(null));
+  const [answers1, setAnswers1] = useState(Array(12).fill(null));
+  const [answers2, setAnswers2] = useState(Array(12).fill(null));
   const topRef = useRef(null);
 
   const scrollToTop = () => {
@@ -339,7 +401,7 @@ export default function App() {
             letterSpacing: "0.1em",
           }}
         >
-          <span>10 Questions</span>
+          <span>12 Questions</span>
           <span style={{ opacity: 0.4 }}>·</span>
           <span>2 Players</span>
           <span style={{ opacity: 0.4 }}>·</span>
@@ -377,7 +439,7 @@ export default function App() {
                   lineHeight: 1.6,
                 }}
               >
-                Enter both names to begin. Each person will answer all 10 questions privately — then we'll reveal how compatible you really are.
+                Enter both names to begin. Each person will answer all 12 questions privately — then we'll reveal how compatible you really are.
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
@@ -505,7 +567,7 @@ export default function App() {
                 </p>
               </div>
               <div style={{ marginLeft: "auto", fontSize: "0.85rem", color: "#7a5a4a", fontFamily: "sans-serif" }}>
-                {answers1.filter((a) => a !== null).length} / 10
+                {answers1.filter((a) => a !== null).length} / 12
               </div>
             </div>
 
@@ -545,7 +607,7 @@ export default function App() {
 
             {!allAnswered1 && (
               <p style={{ textAlign: "center", marginTop: "0.75rem", fontSize: "0.85rem", color: "#9a7a6a" }}>
-                {10 - answers1.filter((a) => a !== null).length} question{10 - answers1.filter((a) => a !== null).length !== 1 ? "s" : ""} remaining
+                {12 - answers1.filter((a) => a !== null).length} question{12 - answers1.filter((a) => a !== null).length !== 1 ? "s" : ""} remaining
               </p>
             )}
           </div>
@@ -575,7 +637,7 @@ export default function App() {
                 </p>
               </div>
               <div style={{ marginLeft: "auto", fontSize: "0.85rem", color: "#4a6a7a", fontFamily: "sans-serif" }}>
-                {answers2.filter((a) => a !== null).length} / 10
+                {answers2.filter((a) => a !== null).length} / 12
               </div>
             </div>
 
@@ -615,7 +677,7 @@ export default function App() {
 
             {!allAnswered2 && (
               <p style={{ textAlign: "center", marginTop: "0.75rem", fontSize: "0.85rem", color: "#9a7a6a" }}>
-                {10 - answers2.filter((a) => a !== null).length} question{10 - answers2.filter((a) => a !== null).length !== 1 ? "s" : ""} remaining
+                {12 - answers2.filter((a) => a !== null).length} question{12 - answers2.filter((a) => a !== null).length !== 1 ? "s" : ""} remaining
               </p>
             )}
           </div>
@@ -774,10 +836,9 @@ export default function App() {
                 <div style={{ fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", color: P2_COLOR, fontFamily: "sans-serif", textAlign: "center" }}>{person2Label}</div>
 
                 {questions.map((q, i) => {
-                const remap = [0, 2, 1];
-                const diff = Math.abs(remap[answers1[i]] - remap[answers2[i]]);
-                const match = diff === 0;
-                const close = diff === 1;
+                const score = questionScoring[i][answers1[i]][answers2[i]];
+                const match = score === 2;
+                const close = score === 1;
                   return (
                     <>
                       <div
@@ -842,8 +903,8 @@ export default function App() {
             <button
               onClick={() => {
                 setPhase("intro");
-                setAnswers1(Array(10).fill(null));
-                setAnswers2(Array(10).fill(null));
+                setAnswers1(Array(12).fill(null));
+                setAnswers2(Array(12).fill(null));
                 setNameInput1("");
                 setNameInput2("");
                 scrollToTop();
